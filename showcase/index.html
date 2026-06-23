@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live AI Sign Language Classification</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="stage" aria-label="Live camera classification">
+      <video id="camera" autoplay playsinline muted></video>
+      <canvas id="overlay"></canvas>
+      <div class="prediction">
+        <span class="label" id="predictionLabel">Starting camera</span>
+        <span class="confidence" id="confidence">0%</span>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <header>
+        <p class="eyebrow">Live AI Sign Language Classification</p>
+        <h1>Real-time hand signal interpreter</h1>
+      </header>
+
+      <div class="status" id="status">Loading hand gesture model...</div>
+
+      <div class="metric">
+        <span>Detected gesture</span>
+        <strong id="rawGesture">Waiting</strong>
+      </div>
+
+      <div class="metric">
+        <span>Mapped sign</span>
+        <strong id="mappedSign">Waiting</strong>
+      </div>
+
+      <div class="metric">
+        <span>Handedness</span>
+        <strong id="handedness">-</strong>
+      </div>
+
+
+      <div class="metric">
+        <span>Finger state</span>
+        <strong id="fingerState">-</strong>
+      </div>      <div class="meter" aria-label="Prediction confidence">
+        <div id="meterFill"></div>
+      </div>
+
+      <section class="transcript">
+        <h2>Transcript</h2>
+        <p id="transcript">Show a hand signal to begin.</p>
+      </section>
+
+      <section class="legend">
+        <h2>Try These</h2>
+        <div><kbd>Open palm</kbd><span>Hello</span></div>
+        <div><kbd>Closed fist</kbd><span>Yes</span></div>
+        <div><kbd>Victory / two fingers</kbd><span>No</span></div>
+        <div><kbd>I Love You</kbd><span>I Love You</span></div>
+        <div><kbd>Thumb up</kbd><span>Yes</span></div>
+      </section>
+    </aside>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.js"></script>
+  <script src="./app.js?v=3"></script>
+</body>
+</html>
