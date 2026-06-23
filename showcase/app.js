@@ -145,6 +145,7 @@ function classifyLandmarks(landmarks){
   }
   updatePrediction(best.sign,best.raw,best.score,correctedHandedness(rawHandedness),best.fingerState);
 }async function start(){
+  if(window.location.search.indexOf("demo=1")>=0){startDemo();return;}
   try{
     let runtimeLoaded=true;
     if(window.Hands===undefined)runtimeLoaded=false;
@@ -165,4 +166,81 @@ function classifyLandmarks(landmarks){
     predictionLabel.textContent="Camera unavailable";
   }
 }
-start();
+start();function demoSceneByName(name){
+  const scenes={
+    hello:{sign:"Hello",raw:"Open palm",score:0.91,hand:"Right physical hand",state:"T:up I:up M:up R:up P:up",fingers:[1,1,1,1,1]},
+    yes:{sign:"Yes",raw:"Closed fist",score:0.88,hand:"Right physical hand",state:"T:down I:down M:down R:down P:down",fingers:[0,0,0,0,0]},
+    no:{sign:"No",raw:"Victory",score:0.86,hand:"Right physical hand",state:"T:down I:up M:up R:down P:down",fingers:[0,1,1,0,0]},
+    ily:{sign:"I Love You",raw:"I-L-Y handshape",score:0.93,hand:"Right physical hand",state:"T:up I:up M:down R:down P:up",fingers:[1,1,0,0,1]}
+  };
+  if(scenes[name])return scenes[name];
+  return scenes.hello;
+}function demoPoints(scene){
+  const wrist={x:0.50,y:0.76};
+  const points=[wrist];
+  const bases=[0.36,0.44,0.52,0.60,0.68];
+  for(let i=0;i<5;i++){
+    const up=scene.fingers[i]===1;
+    const base={x:bases[i],y:0.56};
+    let midY=0.62;
+    let tipY=0.68;
+    if(up){midY=0.39;tipY=0.22;}
+    let tipX=bases[i];
+    if(i===0)tipX=bases[i]-0.10;
+    const mid={x:bases[i],y:midY};
+    const tip={x:tipX,y:tipY};
+    points.push(base);
+    points.push(mid);
+    points.push(tip);
+  }
+  return points;
+}function demoDot(ctx,pt,r,w,h){
+  ctx.beginPath();
+  ctx.arc(pt.x*w,pt.y*h,r,0,Math.PI*2);
+  ctx.fill();
+}
+function demoLine(ctx,a,b,w,h){
+  ctx.beginPath();
+  ctx.moveTo(a.x*w,a.y*h);
+  ctx.lineTo(b.x*w,b.y*h);
+  ctx.stroke();
+}function drawDemoHand(scene){
+  resizeCanvas();
+  const ctx=canvas.getContext("2d");
+  const w=canvas.width;
+  const h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle="#08090a";
+  ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle="#34d399";
+  ctx.lineWidth=6;
+  ctx.lineCap="round";
+  ctx.fillStyle="#f4f7fb";
+  const p=demoPoints(scene);
+  for(let i=0;i<5;i++){
+    const base=1+i*3;
+    demoLine(ctx,p[0],p[base],w,h);
+    demoLine(ctx,p[base],p[base+1],w,h);
+    demoLine(ctx,p[base+1],p[base+2],w,h);
+  }
+  for(let i=0;i<p.length;i++)demoDot(ctx,p[i],6,w,h);
+  demoDot(ctx,p[0],8,w,h);
+}function startDemo(){
+  const params=new URLSearchParams(window.location.search);
+  const sequence=["hello","yes","no","ily"];
+  const requested=params.get("scene");
+  let index=sequence.indexOf(requested);
+  if(index<0)index=0;
+  setStatus("Demo mode: synthetic hand landmarks for reproducible capture.");
+  function render(){
+    const scene=demoSceneByName(sequence[index]);
+    drawDemoHand(scene);
+    updatePrediction(scene.sign,scene.raw,scene.score,scene.hand,scene.state);
+    if(params.get("animate")==="1"){
+      index=index+1;
+      if(index>=sequence.length)index=0;
+    }
+  }
+  render();
+  if(params.get("animate")==="1")setInterval(render,1100);
+}

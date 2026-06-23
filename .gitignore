@@ -5,3 +5,6 @@ build/
 *.pdb
 *.ilk
 *.user
+node_modules/
+.chrome-capture*/
+docs/demo/demo-frames.txt
